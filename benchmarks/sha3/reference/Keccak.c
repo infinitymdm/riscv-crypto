@@ -11,7 +11,9 @@ and related or neighboring rights to the source code in this file.
 http://creativecommons.org/publicdomain/zero/1.0/
 */
 
-#include "riscvcrypto/sha3/Keccak.h"
+#include <stdio.h>
+
+#include "sha3/Keccak.h"
 
 /*!
 @addtogroup crypto_hash_sha3_reference SHA3 Reference
@@ -127,6 +129,11 @@ static void KeccakF1600_StatePermute(void *state)
             }
         }
 
+        printf("Theta / Rho / Pi:\n");
+        for (int i = 0; i < 25; i++) printf("%x", tempA[i]);
+        printf("\n\n");
+        
+
         // Chi
 
         for(y=0; y<5; y++) {
@@ -138,8 +145,16 @@ static void KeccakF1600_StatePermute(void *state)
             }
         }
 
+        printf("Chi:\n");
+        for (int i = 0; i < 25; i++) printf("%x", tempA[i]);
+        printf("\n\n");
+
         // Iota
         ((uint64_t*)state)[index(0, 0)] ^= KeccakP1600RoundConstants[round];
+
+        printf("Iota:\n");
+        for (int i = 0; i < 25; i++) printf("%x", tempA[i]);
+        printf("\n\n");
     }
 }
 

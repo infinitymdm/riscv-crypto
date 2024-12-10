@@ -1,0 +1,10 @@
+test_file := "../../cu-fpga/docs/alchitry_cu_sch.pdf"
+
+build:
+    gcc -I. test/custom_hash_sha3.c sha3/fips202.c sha3/reference/Keccak.c -o custom_hash_sha3
+
+run: build
+    ./custom_hash_sha3 {{test_file}}
+
+ref:
+    openssl dgst -sha3-512 {{test_file}}
