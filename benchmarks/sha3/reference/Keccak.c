@@ -183,8 +183,12 @@ void Keccak(unsigned int rate, unsigned int capacity, const unsigned char *input
     /* === Absorb all the input blocks === */
     while(inputByteLen > 0) {
         blockSize = MIN(inputByteLen, rateInBytes);
-        for(i=0; i<blockSize; i++)
+        printf("Message chunk: ");
+        for(i=0; i<blockSize; i++) {
             state[i] ^= input[i];
+            printf("%x", input[i]);
+        }
+        printf("\n");
         input += blockSize;
         inputByteLen -= blockSize;
 
