@@ -12,6 +12,7 @@ http://creativecommons.org/publicdomain/zero/1.0/
 */
 
 #include <stdio.h>
+#include <byteswap.h>
 
 #include "sha3/Keccak.h"
 
@@ -93,6 +94,7 @@ static const unsigned int KeccakP1600RhoOffsets[25] =
  14   // 24
 };
 
+
 /**
  * Function that computes the Keccak-f[1600] permutation on the given state.
  */
@@ -105,6 +107,10 @@ static void KeccakF1600_StatePermute(void *state)
         uint64_t tempA[25];
         uint64_t D;
 
+        printf("x:\n");
+        for (int i = 0; i < 200; i++) printf("%02x", ((uint8_t *)state)[i]);
+        printf("\n");
+
         // Theta / Rho / Pi
 
         for(x=0; x<5; x++) {
@@ -115,11 +121,14 @@ static void KeccakF1600_StatePermute(void *state)
                    ((uint64_t*)state)[index(x, 4)] ;
         }
 
+        printf("Theta / Rho:\n");
         for(x=0; x<5; x++) {
 
             D = ROL64(C[(x+1)%5], 1) ^ C[(x+4)%5];
 
             for(y=0; y<5; y++) {
+                printf("T: %064llb\n", __bswap_64(((uint64_t*)state)[index(x, y)] ^ D));
+                printf("R: %064llb (%u)\n\n", __bswap_64(ROL64(((uint64_t*)state)[index(x, y)] ^ D, KeccakP1600RhoOffsets[index(x, y)])), KeccakP1600RhoOffsets[index(x, y)]);
 
                 tempA[index(0*x+1*y, 2*x+3*y)] =
                     ROL64 (
@@ -128,10 +137,9 @@ static void KeccakF1600_StatePermute(void *state)
                     );
             }
         }
+        printf("\n");
 
-        printf("Theta / Rho / Pi:\n");
-        for (int i = 0; i < 25; i++) printf("%x", tempA[i]);
-        printf("\n\n");
+        for (int i = 0; i < 25; i++) printf("%x", __bswap_64(tempA[i]));
         
 
         // Chi
@@ -145,15 +153,15 @@ static void KeccakF1600_StatePermute(void *state)
             }
         }
 
-        printf("Chi:\n");
-        for (int i = 0; i < 25; i++) printf("%x", tempA[i]);
-        printf("\n\n");
+        // printf("Chi:\n");
+        // for (int i = 0; i < 200; i++) printf("%02x", ((uint8_t *)state)[i]);
+        // printf("\n");
 
         // Iota
         ((uint64_t*)state)[index(0, 0)] ^= KeccakP1600RoundConstants[round];
 
-        printf("Iota:\n");
-        for (int i = 0; i < 25; i++) printf("%x", tempA[i]);
+        // printf("Iota:\n");
+        // for (int i = 0; i < 200; i++) printf("%02x", ((uint8_t *)state)[i]);
         printf("\n\n");
     }
 }
@@ -186,7 +194,7 @@ void Keccak(unsigned int rate, unsigned int capacity, const unsigned char *input
         printf("Message chunk: ");
         for(i=0; i<blockSize; i++) {
             state[i] ^= input[i];
-            printf("%x", input[i]);
+            printf("%02x", input[i]);
         }
         printf("\n");
         input += blockSize;
